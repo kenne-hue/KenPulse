@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}KenPulse | Smart City Reporting{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        /* Mobile menu styles */
+        .mobile-menu {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .desktop-menu {
+                display: none;
+            }
+            .mobile-menu {
+                display: block;
+            }
+            .mobile-menu-content {
+                display: none;
+            }
+            .mobile-menu-content.active {
+                display: block;
+            }
+        }
+    </style>
+  </head>
+  <body class="font-sans bg-white">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg fixed w-full z-30">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% if user and user.is_authenticated %}{{ url_for('views.esp32') }}{% else %}{{ url_for('views.home') }}{% endif %}" class="flex items-center group">
+                        <span class="font-semibold text-gray-900 text-2xl group-hover:text-purple-600 transition duration-300">Ken<span class="text-purple-600 group-hover:text-gray-900 transition duration-300">Pulse</span></span>
+                    </a>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="desktop-menu hidden md:flex items-center space-x-3">
+                    {% if user and user.is_authenticated %}
+                        <a href="{{ url_for('views.home') }}" class="py-2 px-2 text-gray-700 hover:text-purple-600 transition duration-300">Home</a>
+                        <a href="{{ url_for('views.track_resolutions') }}" class="py-2 px-2 text-gray-700 hover:text-purple-600 transition duration-300">Track Reports</a>
+                        <a href="{{ url_for('analytics.analytics_dashboard') }}" class="py-2 px-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300">Analytics</a>
+                        {% if user.is_admin %}
+                            <a href="{{ url_for('views.admin_dashboard') }}" class="py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Admin Dashboard</a>
+                        {% endif %}
+                        <a href="{{ url_for('auth.logout') }}" class="py-2 px-2 text-gray-700 hover:text-purple-600 transition duration-300">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('views.home') }}" class="py-2 px-2 text-gray-700 hover:text-purple-600 transition duration-300">Home</a>
+                        <a href="{{ url_for('auth.login') }}" class="py-2 px-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300">Sign In</a>
+                        <a href="{{ url_for('auth.sign_up') }}" class="py-2 px-3 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition duration-300">Sign Up</a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="mobile-menu md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+      </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Content -->
+            <div class="mobile-menu-content md:hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    {% if user and user.is_authenticated %}
+                        <a href="{{ url_for('views.home') }}" class="block px-3 py-2 text-gray-700 hover:text-purple-600 transition duration-300">Home</a>
+                        <a href="{{ url_for('views.track_resolutions') }}" class="block px-3 py-2 text-gray-700 hover:text-purple-600 transition duration-300">Track Reports</a>
+                        <a href="{{ url_for('analytics.analytics_dashboard') }}" class="block px-3 py-2 text-purple-600 hover:text-purple-700 transition duration-300">Analytics</a>
+                        {% if user.is_admin %}
+                            <a href="{{ url_for('views.admin_dashboard') }}" class="block px-3 py-2 text-blue-600 hover:text-blue-700 transition duration-300">Admin Dashboard</a>
+                        {% endif %}
+                        <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 text-gray-700 hover:text-purple-600 transition duration-300">Logout</a>
+          {% else %}
+                        <a href="{{ url_for('views.home') }}" class="block px-3 py-2 text-gray-700 hover:text-purple-600 transition duration-300">Home</a>
+                        <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 text-purple-600 hover:text-purple-700 transition duration-300">Sign In</a>
+                        <a href="{{ url_for('auth.sign_up') }}" class="block px-3 py-2 text-purple-600 hover:text-purple-700 transition duration-300">Sign Up</a>
+          {% endif %}
+                </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center text-gray-600">
+                <p>&copy; 2024 KenPulse. All rights reserved.</p>
+    </div>
+    </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.querySelector('.mobile-menu-content');
+            menu.classList.toggle('active');
+  }
+</script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Error - KenPulse{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h1 class="text-3xl font-bold text-red-600 mb-4">Error</h1>
+        <p class="text-lg mb-4">{{ error }}</p>
+        <a href="{{ url_for('views.home') }}" class="text-blue-600 hover:text-blue-800">
+            Return to Home
+        </a>
+    </div>
+</div>
+{% endblock %} 

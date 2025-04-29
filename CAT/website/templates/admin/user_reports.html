@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}User Reports - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">User Reports</h1>
+            <p class="text-gray-600 mt-2">Viewing reports for {{ target_user.first_name }} {{ target_user.last_name }}</p>
+        </div>
+        <a href="{{ url_for('views.admin_dashboard') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+            Back to Dashboard
+        </a>
+    </div>
+
+    {% if reports %}
+    <div class="grid gap-6">
+        {% for report in reports %}
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800">{{ report.title }}</h3>
+                    <p class="text-gray-600 mt-2">{{ report.description }}</p>
+                    <div class="mt-4 flex items-center space-x-4">
+                        <span class="px-3 py-1 rounded-full text-sm
+                            {% if report.status == 'Pending' %}
+                                bg-yellow-100 text-yellow-800
+                            {% elif report.status == 'In Progress' %}
+                                bg-blue-100 text-blue-800
+                            {% else %}
+                                bg-green-100 text-green-800
+                            {% endif %}">
+                            {{ report.status }}
+                        </span>
+                        <span class="text-gray-500 text-sm">
+                            {{ report.timestamp.strftime('%B %d, %Y at %I:%M %p') }}
+                        </span>
+                    </div>
+                </div>
+                {% if report.image_url %}
+                <img src="{{ report.image_url }}" alt="Report image" class="w-32 h-32 object-cover rounded-lg">
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <p class="text-gray-600 text-lg">No reports found for this user.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

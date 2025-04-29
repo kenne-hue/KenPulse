@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold text-center text-gray-900 mb-8">Frequently Asked Questions</h1>
+        
+        <div class="space-y-6">
+            <!-- Question 1 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">How do I report an issue?</h2>
+                <p class="text-gray-600">To report an issue, click on the "Report Now" button in the navigation menu. You'll need to provide a title, description, location, and optionally attach a photo of the issue.</p>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">How can I track my reports?</h2>
+                <p class="text-gray-600">You can track your reports by clicking on "Track Reports" in the navigation menu. This will show you all your submitted reports and their current status.</p>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">What types of issues can I report?</h2>
+                <p class="text-gray-600">You can report various urban issues including potholes, broken streetlights, garbage accumulation, damaged infrastructure, and other public concerns.</p>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">How long does it take to resolve an issue?</h2>
+                <p class="text-gray-600">Resolution time varies depending on the type and severity of the issue. You'll receive updates on your report's status through the platform.</p>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">Is my personal information secure?</h2>
+                <p class="text-gray-600">Yes, we take your privacy seriously. Your personal information is protected according to our Privacy Policy, and we only share necessary details with relevant authorities.</p>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">Can I report issues anonymously?</h2>
+                <p class="text-gray-600">No, you need to create an account to report issues. This helps us maintain accountability and allows us to keep you updated on the status of your reports.</p>
+            </div>
+        </div>
+
+        <!-- Contact Support Section -->
+        <div class="mt-12 text-center">
+            <p class="text-gray-600 mb-4">Still have questions?</p>
+            <a href="{{ url_for('views.contact') }}" class="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition duration-300">
+                Contact Support
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

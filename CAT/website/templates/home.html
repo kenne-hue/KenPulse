@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KenPulse | Smart City Reporting</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+        }
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="font-sans bg-white">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between">
+                <div class="flex space-x-7">
+                    <a href="#" class="flex items-center py-4 px-2">
+                        <span class="font-semibold text-gray-900 text-2xl">Ken<span class="text-purple-600">Pulse</span></span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-3">
+                    <a href="#" class="py-2 px-2 text-gray-700 hover:text-purple-600 transition duration-300">Home</a>
+                    <a href="#how-it-works" class="py-2 px-2 text-gray-700 hover:text-purple-600 transition duration-300">How It Works</a>
+                    <a href="#reports" class="py-2 px-2 text-gray-700 hover:text-purple-600 transition duration-300">Recent Reports</a>
+                    <a href="{{ url_for('views.report') }}" class="py-2 px-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300">Report Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 animate_animated animate_fadeIn">Transform Your City</h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto animate_animated animatefadeIn animate_delay-1s">
+                Report urban issues in seconds. Help build smarter, cleaner communities.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <a href="{{ url_for('views.report') }}" class="pulse bg-white text-purple-600 font-bold py-3 px-8 rounded-full text-lg hover:bg-gray-100 transition duration-300 animate_animated animatebounceIn animate_delay-2s inline-block">
+                Report Now ➔
+                </a>
+                <a href="{{ url_for('views.track_resolutions') }}" class="pulse bg-white text-purple-600 font-bold py-3 px-8 rounded-full text-lg hover:bg-gray-100 transition duration-300 animate_animated animatebounceIn animate_delay-2s inline-block">
+                    Reports ➔
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-wrap justify-center text-center">
+                <div class="w-full md:w-1/3 px-4 py-6">
+                    <a href="{{ url_for('views.track_resolutions') }}" class="block hover:scale-105 transition duration-300">
+                        <div class="text-5xl font-bold text-purple-600 counter" data-target="{{ stats.reports_count }}">0</div>
+                    <div class="text-gray-600 mt-2">Issues Reported</div>
+                    </a>
+                </div>
+                <div class="w-full md:w-1/3 px-4 py-6">
+                    <a href="{{ url_for('views.track_resolutions') }}?status=Resolved" class="block hover:scale-105 transition duration-300">
+                        <div class="text-5xl font-bold text-purple-600 counter" data-target="{{ stats.resolved_count }}">0</div>
+                    <div class="text-gray-600 mt-2">Issues Resolved</div>
+                    </a>
+                </div>
+                <div class="w-full md:w-1/3 px-4 py-6">
+                    <a href="{{ url_for('views.track_resolutions') }}?status=Pending" class="block hover:scale-105 transition duration-300">
+                        <div class="text-5xl font-bold text-purple-600 counter" data-target="{{ stats.pending_count }}">0</div>
+                        <div class="text-gray-600 mt-2">Pending Issues</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-16">How It Works</h2>
+            <div class="flex flex-wrap">
+                <div class="w-full md:w-1/3 px-4 mb-8">
+                    <div class="bg-white p-8 rounded-xl shadow-md h-full">
+                        <a href="#spot-issue" class="text-purple-600 text-4xl mb-4 hover:text-purple-700 transition duration-300">1</a>
+                        <h3 class="text-xl font-bold mb-3">Spot an Issue</h3>
+                        <p class="text-gray-600">See a pothole, garbage pile, or broken infrastructure? Open the app.</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/3 px-4 mb-8">
+                    <div class="bg-white p-8 rounded-xl shadow-md h-full">
+                        <a href="#snap-submit" class="text-purple-600 text-4xl mb-4 hover:text-purple-700 transition duration-300">2</a>
+                        <h3 class="text-xl font-bold mb-3">Snap & Submit</h3>
+                        <p class="text-gray-600">Take a photo with your phone. Add details if needed.</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/3 px-4 mb-8">
+                    <div class="bg-white p-8 rounded-xl shadow-md h-full">
+                        <a href="#track-resolution" class="text-purple-600 text-4xl mb-4 hover:text-purple-700 transition duration-300">3</a>
+                        <h3 class="text-xl font-bold mb-3">Track Resolution</h3>
+                        <p class="text-gray-600">Get updates when authorities address your report.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Reports -->
+    <section id="reports" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12">Recently Reported Issues</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for report in recent_reports %}
+                <div class="report-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300 cursor-pointer" onclick="showReportDetails({{ report.id }})">
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span class="{% if report.status == 'Pending' %}bg-yellow-100 text-yellow-800{% elif report.status == 'In Progress' %}bg-green-100 text-green-800{% else %}bg-purple-100 text-purple-800{% endif %} text-xs font-semibold px-2.5 py-0.5 rounded">{{ report.status }}</span>
+                            <span class="text-gray-500 text-sm ml-auto">{{ report.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">{{ report.title }}</h3>
+                        <p class="text-gray-600">{{ report.description }}</p>
+                        <div class="mt-4 flex items-center">
+                            <div class="flex-shrink-0">
+                                <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ report.user.first_name }}&background=6e8efb&color=fff" alt="Reporter">
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">{{ report.user.first_name }}</p>
+                                <p class="text-sm text-gray-500">Local Resident</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+                        </div>
+    </section>
+
+    <!-- Report Details Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-900" id="modalTitle"></h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                            </div>
+            <div class="mb-4">
+                <span id="modalStatus" class="px-2 py-1 text-xs font-semibold rounded-full"></span>
+                <span id="modalTimestamp" class="text-gray-500 text-sm ml-2"></span>
+                            </div>
+            <div class="mb-4">
+                <h4 class="text-lg font-semibold text-gray-700 mb-2">Description</h4>
+                <p id="modalDescription" class="text-gray-600"></p>
+                        </div>
+            <div class="mb-4">
+                <h4 class="text-lg font-semibold text-gray-700 mb-2">Location</h4>
+                <p id="modalLocation" class="text-gray-600"></p>
+                    </div>
+            <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                    <img id="modalReporterImage" class="h-10 w-10 rounded-full" src="" alt="Reporter">
+                            </div>
+                            <div class="ml-3">
+                    <p id="modalReporterName" class="text-sm font-medium text-gray-900"></p>
+                    <p id="modalReporterRole" class="text-sm text-gray-500"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Counter animation
+        function animateCounter(element) {
+            const target = parseInt(element.getAttribute('data-target'));
+            const duration = 2000; // 2 seconds
+            const step = target / (duration / 16); // 60fps
+            let current = 0;
+            
+            const updateCounter = () => {
+                current += step;
+                if (current < target) {
+                    element.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target;
+                }
+            };
+            
+            updateCounter();
+        }
+
+        // Initialize counters when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                animateCounter(counter);
+            });
+        });
+
+        function showReportDetails(reportId) {
+            const modal = document.getElementById('reportModal');
+            modal.classList.remove('hidden');
+            
+            // Show loading state
+            document.getElementById('modalTitle').textContent = 'Loading...';
+            document.getElementById('modalDescription').textContent = '';
+            document.getElementById('modalLocation').textContent = '';
+            document.getElementById('modalReporterName').textContent = '';
+            document.getElementById('modalReporterRole').textContent = '';
+            
+            // Fetch report details from the server
+            fetch(`/get-report/${reportId}`)
+                .then(response => response.json())
+                .then(report => {
+                    document.getElementById('modalTitle').textContent = report.title;
+                    document.getElementById('modalStatus').textContent = report.status;
+                    document.getElementById('modalStatus').className = `px-2 py-1 text-xs font-semibold rounded-full ${
+                        report.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                        report.status === 'In Progress' ? 'bg-green-100 text-green-800' :
+                        'bg-purple-100 text-purple-800'
+                    }`;
+                    document.getElementById('modalTimestamp').textContent = report.timestamp;
+                    document.getElementById('modalDescription').textContent = report.description;
+                    document.getElementById('modalLocation').textContent = report.location;
+                    document.getElementById('modalReporterName').textContent = report.reporterName;
+                    document.getElementById('modalReporterRole').textContent = report.reporterRole;
+                    
+                    // Update reporter image
+                    const reporterImage = document.getElementById('modalReporterImage');
+                    if (report.imageUrl) {
+                        reporterImage.src = report.imageUrl;
+                    } else {
+                        reporterImage.src = `https://ui-avatars.com/api/?name=${report.reporterName}&background=6e8efb&color=fff`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching report details:', error);
+                    document.getElementById('modalTitle').textContent = 'Error loading report details';
+                });
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.add('hidden');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('reportModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

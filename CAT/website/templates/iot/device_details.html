@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}{{ device.name }} - KenPulse{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <a href="{{ url_for('views.iot_devices') }}" class="text-purple-600 hover:text-purple-800 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Devices
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">{{ device.name }}</h1>
+                <p class="text-gray-600 mt-2">{{ device.location }}</p>
+                <div class="mt-4 flex items-center space-x-4">
+                    <span class="px-3 py-1 rounded-full text-sm
+                        {% if device.status == 'Active' %}
+                            bg-green-100 text-green-800
+                        {% elif device.status == 'Inactive' %}
+                            bg-red-100 text-red-800
+                        {% else %}
+                            bg-yellow-100 text-yellow-800
+                        {% endif %}">
+                        {{ device.status }}
+                    </span>
+                    <span class="text-gray-500 text-sm">
+                        Device ID: {{ device.device_id }}
+                    </span>
+                    <span class="text-gray-500 text-sm">
+                        Last seen: {{ device.last_seen.strftime('%B %d, %Y at %I:%M %p') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Temperature Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Temperature</h2>
+            <div class="h-64">
+                <canvas id="temperatureChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Humidity Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Humidity</h2>
+            <div class="h-64">
+                <canvas id="humidityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Air Quality Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Air Quality</h2>
+            <div class="h-64">
+                <canvas id="airQualityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Data Table -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Data</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Temperature</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Humidity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Air Quality</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for data in device_data %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ data.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ data.temperature }}°C
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ data.humidity }}%
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ data.air_quality }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Prepare data for charts
+const timestamps = {{ device_data|map(attribute='timestamp')|map('strftime', '%Y-%m-%d %H:%M')|list|tojson }};
+const temperatures = {{ device_data|map(attribute='temperature')|list|tojson }};
+const humidities = {{ device_data|map(attribute='humidity')|list|tojson }};
+const airQualities = {{ device_data|map(attribute='air_quality')|list|tojson }};
+
+// Create charts
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+        y: {
+            beginAtZero: true
+        }
+    }
+};
+
+new Chart(document.getElementById('temperatureChart'), {
+    type: 'line',
+    data: {
+        labels: timestamps,
+        datasets: [{
+            label: 'Temperature (°C)',
+            data: temperatures,
+            borderColor: 'rgb(255, 99, 132)',
+            tension: 0.1
+        }]
+    },
+    options: chartOptions
+});
+
+new Chart(document.getElementById('humidityChart'), {
+    type: 'line',
+    data: {
+        labels: timestamps,
+        datasets: [{
+            label: 'Humidity (%)',
+            data: humidities,
+            borderColor: 'rgb(54, 162, 235)',
+            tension: 0.1
+        }]
+    },
+    options: chartOptions
+});
+
+new Chart(document.getElementById('airQualityChart'), {
+    type: 'line',
+    data: {
+        labels: timestamps,
+        datasets: [{
+            label: 'Air Quality',
+            data: airQualities,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    },
+    options: chartOptions
+});
+</script>
+{% endblock %}
+{% endblock %} 

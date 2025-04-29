@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - System Settings{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">System Settings</h1>
+    
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <form id="settingsForm" class="p-6">
+            <!-- Email Settings -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">Email Settings</h2>
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label for="smtp_server" class="block text-sm font-medium text-gray-700">SMTP Server</label>
+                        <input type="text" id="smtp_server" name="smtp_server" value="{{ settings.smtp_server }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="smtp_port" class="block text-sm font-medium text-gray-700">SMTP Port</label>
+                        <input type="number" id="smtp_port" name="smtp_port" value="{{ settings.smtp_port }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="smtp_username" class="block text-sm font-medium text-gray-700">SMTP Username</label>
+                        <input type="text" id="smtp_username" name="smtp_username" value="{{ settings.smtp_username }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="smtp_password" class="block text-sm font-medium text-gray-700">SMTP Password</label>
+                        <input type="password" id="smtp_password" name="smtp_password" value="{{ settings.smtp_password }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Settings -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">System Settings</h2>
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label for="site_name" class="block text-sm font-medium text-gray-700">Site Name</label>
+                        <input type="text" id="site_name" name="site_name" value="{{ settings.site_name }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="site_description" class="block text-sm font-medium text-gray-700">Site Description</label>
+                        <textarea id="site_description" name="site_description" rows="3"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ settings.site_description }}</textarea>
+                    </div>
+                    <div>
+                        <label for="items_per_page" class="block text-sm font-medium text-gray-700">Items Per Page</label>
+                        <input type="number" id="items_per_page" name="items_per_page" value="{{ settings.items_per_page }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">Security Settings</h2>
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label for="password_min_length" class="block text-sm font-medium text-gray-700">Minimum Password Length</label>
+                        <input type="number" id="password_min_length" name="password_min_length" value="{{ settings.password_min_length }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="login_attempts" class="block text-sm font-medium text-gray-700">Maximum Login Attempts</label>
+                        <input type="number" id="login_attempts" name="login_attempts" value="{{ settings.login_attempts }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const settings = Object.fromEntries(formData.entries());
+    
+    try {
+        const response = await fetch('/admin/update-settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(settings)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Settings updated successfully');
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating settings');
+    }
+});
+</script>
+{% endblock %} 

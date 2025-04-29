@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}IoT Devices - KenPulse{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">IoT Devices</h1>
+        <button onclick="showAddDeviceModal()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+            Add New Device
+        </button>
+    </div>
+
+    {% if devices %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for device in devices %}
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800">{{ device.name }}</h3>
+                    <p class="text-gray-600 mt-2">{{ device.location }}</p>
+                    <div class="mt-4 flex items-center space-x-4">
+                        <span class="px-3 py-1 rounded-full text-sm
+                            {% if device.status == 'Active' %}
+                                bg-green-100 text-green-800
+                            {% elif device.status == 'Inactive' %}
+                                bg-red-100 text-red-800
+                            {% else %}
+                                bg-yellow-100 text-yellow-800
+                            {% endif %}">
+                            {{ device.status }}
+                        </span>
+                        <span class="text-gray-500 text-sm">
+                            Last seen: {{ device.last_seen.strftime('%B %d, %Y at %I:%M %p') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <a href="{{ url_for('views.device_details', device_id=device.id) }}" 
+                   class="text-purple-600 hover:text-purple-800">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <p class="text-gray-600 text-lg">No devices found. Add your first IoT device to get started.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add Device Modal -->
+<div id="addDeviceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-gray-800">Add New Device</h3>
+            <button onclick="closeAddDeviceModal()" class="text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form id="addDeviceForm" class="space-y-4">
+            <div>
+                <label for="deviceId" class="block text-sm font-medium text-gray-700">Device ID</label>
+                <input type="text" id="deviceId" name="deviceId" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+            </div>
+            <div>
+                <label for="deviceName" class="block text-sm font-medium text-gray-700">Device Name</label>
+                <input type="text" id="deviceName" name="deviceName" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+            </div>
+            <div>
+                <label for="deviceLocation" class="block text-sm font-medium text-gray-700">Location</label>
+                <input type="text" id="deviceLocation" name="deviceLocation" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeAddDeviceModal()"
+                    class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700">
+                    Add Device
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block javascript %}
+<script>
+function showAddDeviceModal() {
+    document.getElementById('addDeviceModal').classList.remove('hidden');
+}
+
+function closeAddDeviceModal() {
+    document.getElementById('addDeviceModal').classList.add('hidden');
+}
+
+document.getElementById('addDeviceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        device_id: document.getElementById('deviceId').value,
+        name: document.getElementById('deviceName').value,
+        location: document.getElementById('deviceLocation').value,
+        user_id: {{ current_user.id }}
+    };
+    
+    fetch('/api/iot/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding the device');
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

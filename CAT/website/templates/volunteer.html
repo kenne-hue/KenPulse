@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full space-y-8">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Join Our Volunteer Team
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Help make your city a better place by volunteering with KenPulse
+            </p>
+        </div>
+        <form class="mt-8 space-y-6" method="POST">
+            <div class="rounded-md shadow-sm space-y-4">
+                <!-- Personal Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input id="firstName" name="firstName" type="text" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input id="lastName" name="lastName" type="text" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input id="email" name="email" type="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                </div>
+
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input id="phone" name="phone" type="tel" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                </div>
+
+                <!-- Skills and Experience -->
+                <div>
+                    <label for="skills" class="block text-sm font-medium text-gray-700">Skills and Experience</label>
+                    <textarea id="skills" name="skills" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="Please describe your relevant skills and experience"></textarea>
+                </div>
+
+                <!-- Availability -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Availability</label>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center">
+                            <input id="weekdays" name="availability" type="checkbox" value="weekdays" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <label for="weekdays" class="ml-2 block text-sm text-gray-900">Weekdays</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="weekends" name="availability" type="checkbox" value="weekends" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <label for="weekends" class="ml-2 block text-sm text-gray-900">Weekends</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="evenings" name="availability" type="checkbox" value="evenings" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <label for="evenings" class="ml-2 block text-sm text-gray-900">Evenings</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Areas of Interest -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Areas of Interest</label>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center">
+                            <input id="environment" name="interests" type="checkbox" value="environment" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <label for="environment" class="ml-2 block text-sm text-gray-900">Environmental Cleanup</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="infrastructure" name="interests" type="checkbox" value="infrastructure" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <label for="infrastructure" class="ml-2 block text-sm text-gray-900">Infrastructure Monitoring</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="community" name="interests" type="checkbox" value="community" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <label for="community" class="ml-2 block text-sm text-gray-900">Community Engagement</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Comments -->
+                <div>
+                    <label for="comments" class="block text-sm font-medium text-gray-700">Additional Comments</label>
+                    <textarea id="comments" name="comments" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="Any additional information you'd like to share"></textarea>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    Submit Application
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

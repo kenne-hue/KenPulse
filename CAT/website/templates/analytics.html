@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - KenPulse{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Analytics Dashboard</h1>
+
+    {% if error %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <span class="block sm:inline">{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <!-- Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2">Total Reports</h3>
+            <p class="text-3xl font-bold">{{ stats.total|default(0) }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2">Resolved Reports</h3>
+            <p class="text-3xl font-bold text-green-600">{{ stats.resolved|default(0) }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2">Pending Reports</h3>
+            <p class="text-3xl font-bold text-yellow-600">{{ stats.pending|default(0) }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2">Resolution Rate</h3>
+            <p class="text-3xl font-bold text-blue-600">{{ "%.1f"|format(stats.resolution_rate|default(0)) }}%</p>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-4">Report Trends</h3>
+            <canvas id="trendsChart" data-trends='{{ trends|tojson|safe }}'></canvas>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-4">Status Distribution</h3>
+            <canvas id="statusChart" data-status='{{ status_distribution|tojson|safe }}'></canvas>
+        </div>
+    </div>
+
+    <!-- User Activity -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-lg font-semibold mb-4">User Activity</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <h4 class="font-medium mb-2">Total Users</h4>
+                <p class="text-2xl font-bold">{{ user_activity.total_users|default(0) }}</p>
+            </div>
+            <div>
+                <h4 class="font-medium mb-2">Active Users (30 days)</h4>
+                <p class="text-2xl font-bold">{{ user_activity.active_users|default(0) }}</p>
+            </div>
+            <div>
+                <h4 class="font-medium mb-2">Top Reporters</h4>
+                <ul class="list-disc list-inside">
+                    {% for reporter in user_activity.top_reporters|default([]) %}
+                    <li>{{ reporter.first_name }} {{ reporter.last_name }} ({{ reporter.report_count }})</li>
+                    {% else %}
+                    <li>No reporters found</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Insights -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 class="text-lg font-semibold mb-4">Location Insights</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h4 class="font-medium mb-2">Top Locations</h4>
+                <ul class="list-disc list-inside">
+                    {% for location in location_insights.top_locations|default([]) %}
+                    <li>{{ location.location }} ({{ location.count }})</li>
+                    {% else %}
+                    <li>No locations found</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-medium mb-2">Resolution Rates by Location</h4>
+                <ul class="list-disc list-inside">
+                    {% for location in location_insights.resolution_by_location|default([]) %}
+                    <li>{{ location.location }}: {{ "%.1f"|format(location.resolution_rate|default(0)) }}%</li>
+                    {% else %}
+                    <li>No location data available</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Response Time Metrics -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold mb-4">Response Time Metrics</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <h4 class="font-medium mb-2">Average Time to First Response</h4>
+                <p class="text-2xl font-bold">
+                    {% if response_metrics.avg_first_response %}
+                        {{ response_metrics.avg_first_response|format_timedelta }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <h4 class="font-medium mb-2">Average Time to Resolution</h4>
+                <p class="text-2xl font-bold">
+                    {% if response_metrics.avg_resolution_time %}
+                        {{ response_metrics.avg_resolution_time|format_timedelta }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Trends Chart
+    const trendsCanvas = document.getElementById('trendsChart');
+    const trendsData = JSON.parse(trendsCanvas.dataset.trends || '[]');
+    
+    if (trendsData.length > 0) {
+        new Chart(trendsCanvas, {
+            type: 'line',
+            data: {
+                labels: trendsData.map(d => d.date),
+                datasets: [{
+                    label: 'Reports',
+                    data: trendsData.map(d => d.count),
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    }
+
+    // Status Distribution Chart
+    const statusCanvas = document.getElementById('statusChart');
+    const statusData = JSON.parse(statusCanvas.dataset.status || '[]');
+    
+    if (statusData.length > 0) {
+        new Chart(statusCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: statusData.map(d => d.status),
+                datasets: [{
+                    data: statusData.map(d => d.count),
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - KenPulse{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-start">
+                <div class="flex items-center space-x-4">
+                    <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-4xl text-gray-600">{{ user.first_name[0] }}{% if user.last_name %}{{ user.last_name[0] }}{% endif %}</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">{{ user.first_name }} {% if user.last_name %}{{ user.last_name }}{% endif %}</h1>
+                        <p class="text-gray-600">{{ user.email }}</p>
+                        {% if user.date_created %}
+                            <p class="text-sm text-gray-500">Member since {{ user.date_created.strftime('%B %Y') }}</p>
+                        {% else %}
+                            <p class="text-sm text-gray-500">Member since recently</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ url_for('views.edit_profile') }}" 
+                       class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <a href="{{ url_for('views.report') }}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">Report an Issue</h2>
+                        <p class="text-gray-600">Submit a new report</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ url_for('views.track_resolutions') }}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">Track Reports</h2>
+                        <p class="text-gray-600">View your submitted reports</p>
+                    </div>
+                </div>
+            </a>
+
+            {% if user.is_admin %}
+            <div class="relative bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">Admin Controls</h2>
+                        <p class="text-gray-600">Manage system settings</p>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <a href="{{ url_for('views.admin_dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                        Dashboard Overview
+                    </a>
+                    <a href="{{ url_for('views.admin_reports') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                        Manage Reports
+                    </a>
+                    <a href="{{ url_for('views.admin_activity_logs') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                        Activity Logs
+                    </a>
+                    <a href="{{ url_for('views.admin_settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md">
+                        System Settings
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h2>
+            {% if recent_reports %}
+                <div class="space-y-4">
+                    {% for report in recent_reports %}
+                        <div class="border-b border-gray-200 pb-4 last:border-0">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">{{ report.title }}</h3>
+                                    <p class="text-sm text-gray-600">{{ report.description }}</p>
+                                    <p class="text-xs text-gray-500 mt-1">{{ report.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                                </div>
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if report.status == 'Pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif report.status == 'In Progress' %}bg-blue-100 text-blue-800
+                                    {% elif report.status == 'Resolved' %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ report.status }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-600">No recent activity to display.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user.is_admin %}
+<div class="fixed bottom-4 left-4 z-50">
+    <a href="{{ url_for('views.admin_dashboard') }}" 
+       class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        Admin Dashboard
+    </a>
+</div>
+{% endif %}
+
+{% endblock %} 

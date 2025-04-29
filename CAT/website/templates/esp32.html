@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block title %}ESP32 Interface - KenPulse{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Main Content -->
+            <div class="flex-1">
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">ESP32 Interface</h2>
+                    
+                    {% if not esp32_available %}
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    ESP32 is not available on this system. Please connect an ESP32 device to use this interface.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Connection Status -->
+                    <div id="connection-status" class="mb-6">
+                        <div class="flex items-center">
+                            <div class="h-4 w-4 rounded-full bg-gray-400 mr-2" id="status-indicator"></div>
+                            <span id="status-text" class="text-gray-600">Disconnected</span>
+                        </div>
+                    </div>
+
+                    {% if esp32_available %}
+                    <!-- Port Selection -->
+                    <div class="mb-6">
+                        <label for="port-select" class="block text-sm font-medium text-gray-700">Select Port</label>
+                        <select id="port-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
+                            {% for port in ports %}
+                            <option value="{{ port }}">{{ port }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Connection Controls -->
+                    <div class="flex space-x-4 mb-6">
+                        <button id="connect-btn" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                            Connect
+                        </button>
+                        <button id="disconnect-btn" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" disabled>
+                            Disconnect
+                        </button>
+                    </div>
+
+                    <!-- Command Interface -->
+                    <div class="mb-6">
+                        <label for="command-input" class="block text-sm font-medium text-gray-700">Send Command</label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="text" id="command-input" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-md focus:ring-purple-500 focus:border-purple-500 sm:text-sm border-gray-300" placeholder="Enter command...">
+                            <button id="send-btn" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500" disabled>
+                                Send
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Response Area -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700">Response</label>
+                        <div id="response-area" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                            No response yet...
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Information Section -->
+                <div class="mt-8">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Connection Status Information</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="border-l-4 border-green-500 bg-green-50 p-4">
+                                <h4 class="font-semibold text-green-800">When Connected:</h4>
+                                <ul class="list-disc list-inside text-green-700 mt-2 text-sm">
+                                    <li>Real-time data streaming</li>
+                                    <li>Command control enabled</li>
+                                    <li>Live monitoring active</li>
+                                    <li>Device control available</li>
+                                </ul>
+                            </div>
+
+                            <div class="border-l-4 border-red-500 bg-red-50 p-4">
+                                <h4 class="font-semibold text-red-800">When Disconnected:</h4>
+                                <ul class="list-disc list-inside text-red-700 mt-2 text-sm">
+                                    <li>No real-time updates</li>
+                                </ul>
+                            </div>
+
+                            <div class="border-l-4 border-blue-500 bg-blue-50 p-4">
+                                <h4 class="font-semibold text-blue-800">Requirements:</h4>
+                                <ul class="list-disc list-inside text-blue-700 mt-2 text-sm">
+                                    <li>USB connection</li>
+                                    <li>Correct COM port</li>
+                                    <li>Compatible firmware</li>
+                                    <li>Serial port access</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sensor Information Section -->
+                <div class="mt-8">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Sensor Information</h3>
+                        
+                        <!-- Sensor Specifications -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-800 mb-2">Available Sensors:</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="border rounded-lg p-4">
+                                    <h5 class="font-medium text-gray-700">Temperature Sensor</h5>
+                                    <ul class="mt-2 text-sm text-gray-600">
+                                        <li>Type: DHT22</li>
+                                        <li>Range: -40°C to 80°C</li>
+                                        <li>Accuracy: ±0.5°C</li>
+                                        <li>Resolution: 0.1°C</li>
+                                    </ul>
+                                </div>
+                                <div class="border rounded-lg p-4">
+                                    <h5 class="font-medium text-gray-700">Humidity Sensor</h5>
+                                    <ul class="mt-2 text-sm text-gray-600">
+                                        <li>Type: DHT22</li>
+                                        <li>Range: 0% to 100% RH</li>
+                                        <li>Accuracy: ±2% RH</li>
+                                        <li>Resolution: 0.1% RH</li>
+                                    </ul>
+                                </div>
+                                <div class="border rounded-lg p-4">
+                                    <h5 class="font-medium text-gray-700">Air Quality Sensor</h5>
+                                    <ul class="mt-2 text-sm text-gray-600">
+                                        <li>Type: MQ-135</li>
+                                        <li>Detects: CO2, NH3, NOx</li>
+                                        <li>Range: 10-1000 ppm</li>
+                                        <li>Response Time: < 30s</li>
+                                    </ul>
+                                </div>
+                                <div class="border rounded-lg p-4">
+                                    <h5 class="font-medium text-gray-700">Motion Sensor</h5>
+                                    <ul class="mt-2 text-sm text-gray-600">
+                                        <li>Type: PIR HC-SR501</li>
+                                        <li>Detection Range: 7m</li>
+                                        <li>Detection Angle: 110°</li>
+                                        <li>Delay Time: Adjustable</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Sensor Data -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-800 mb-2">Real-time Sensor Data</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="border rounded-lg p-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Temperature</span>
+                                        <span id="temp-value" class="text-xl font-semibold">--°C</span>
+                                    </div>
+                                    <div class="mt-2 h-2 bg-gray-200 rounded-full">
+                                        <div id="temp-bar" class="h-2 bg-red-500 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="border rounded-lg p-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Humidity</span>
+                                        <span id="humidity-value" class="text-xl font-semibold">--%</span>
+                                    </div>
+                                    <div class="mt-2 h-2 bg-gray-200 rounded-full">
+                                        <div id="humidity-bar" class="h-2 bg-blue-500 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="border rounded-lg p-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Air Quality</span>
+                                        <span id="air-quality-value" class="text-xl font-semibold">--</span>
+                                    </div>
+                                    <div class="mt-2 h-2 bg-gray-200 rounded-full">
+                                        <div id="air-quality-bar" class="h-2 bg-green-500 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="border rounded-lg p-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Motion Detection</span>
+                                        <span id="motion-value" class="text-xl font-semibold">Inactive</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div id="motion-indicator" class="h-2 w-2 rounded-full bg-gray-400"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sensor Data History -->
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Sensor Data History</h4>
+                            <div class="border rounded-lg p-4">
+                                <canvas id="sensor-history-chart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Sidebar -->
+            <div class="w-full lg:w-80">
+                <div class="bg-white shadow rounded-lg p-6 sticky top-4">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">ESP32 Features</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Real-time Monitoring -->
+                        <div class="border-l-4 border-blue-500 bg-blue-50 p-4">
+                            <h4 class="font-semibold text-blue-800">Real-time Monitoring</h4>
+                            <ul class="list-disc list-inside text-blue-700 mt-2">
+                                <li>Sensor Data Streaming</li>
+                                <li>Live Status Updates</li>
+                                <li>Instant Response Display</li>
+                            </ul>
+                        </div>
+
+                        <!-- Command Control -->
+                        <div class="border-l-4 border-purple-500 bg-purple-50 p-4">
+                            <h4 class="font-semibold text-purple-800">Command Control</h4>
+                            <ul class="list-disc list-inside text-purple-700 mt-2">
+                                <li>Direct Command Input</li>
+                                <li>Custom Commands</li>
+                                <li>Command History</li>
+                            </ul>
+                        </div>
+
+                        <!-- Device Management -->
+                        <div class="border-l-4 border-green-500 bg-green-50 p-4">
+                            <h4 class="font-semibold text-green-800">Device Management</h4>
+                            <ul class="list-disc list-inside text-green-700 mt-2">
+                                <li>Port Selection</li>
+                                <li>Connection Control</li>
+                                <li>Status Monitoring</li>
+                            </ul>
+                        </div>
+
+                        <!-- Data Visualization -->
+                        <div class="border-l-4 border-yellow-500 bg-yellow-50 p-4">
+                            <h4 class="font-semibold text-yellow-800">Data Visualization</h4>
+                            <ul class="list-disc list-inside text-yellow-700 mt-2">
+                                <li>Response Display</li>
+                                <li>Status Indicators</li>
+                                <li>Error Messages</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Quick Commands -->
+                    <div class="mt-6">
+                        <h4 class="font-semibold text-gray-800 mb-2">Quick Commands</h4>
+                        <div class="space-y-2">
+                            <button class="w-full text-left px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm text-gray-700" onclick="document.getElementById('command-input').value='AT+STATUS'">
+                                AT+STATUS
+                            </button>
+                            <button class="w-full text-left px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm text-gray-700" onclick="document.getElementById('command-input').value='AT+VERSION'">
+                                AT+VERSION
+                            </button>
+                            <button class="w-full text-left px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm text-gray-700" onclick="document.getElementById('command-input').value='AT+HELP'">
+                                AT+HELP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize sensor data arrays for history
+let sensorHistory = {
+    timestamps: [],
+    temperature: [],
+    humidity: [],
+    airQuality: [],
+    motion: []
+};
+
+// Initialize charts
+let sensorChart = null;
+
+function initializeCharts() {
+    // Main sensor data chart
+    const ctx = document.getElementById('sensor-history-chart').getContext('2d');
+    sensorChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: sensorHistory.timestamps,
+            datasets: [
+                {
+                    label: 'Temperature (°C)',
+                    data: sensorHistory.temperature,
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                },
+                {
+                    label: 'Humidity (%)',
+                    data: sensorHistory.humidity,
+                    borderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1
+                },
+                {
+                    label: 'Air Quality',
+                    data: sensorHistory.airQuality,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Function to update sensor values
+function updateSensorValues(data) {
+    // Update real-time values
+    document.getElementById('temp-value').textContent = `${data.temperature}°C`;
+    document.getElementById('humidity-value').textContent = `${data.humidity}%`;
+    document.getElementById('air-quality-value').textContent = data.airQuality;
+    document.getElementById('motion-value').textContent = data.motion ? 'Active' : 'Inactive';
+    
+    // Update progress bars
+    document.getElementById('temp-bar').style.width = `${(data.temperature / 80) * 100}%`;
+    document.getElementById('humidity-bar').style.width = `${data.humidity}%`;
+    document.getElementById('air-quality-bar').style.width = `${(data.airQuality / 1000) * 100}%`;
+    
+    // Update motion indicator
+    const motionIndicator = document.getElementById('motion-indicator');
+    motionIndicator.className = `h-2 w-2 rounded-full ${data.motion ? 'bg-green-500' : 'bg-gray-400'}`;
+    
+    // Update history
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString();
+    
+    sensorHistory.timestamps.push(timestamp);
+    sensorHistory.temperature.push(data.temperature);
+    sensorHistory.humidity.push(data.humidity);
+    sensorHistory.airQuality.push(data.airQuality);
+    sensorHistory.motion.push(data.motion ? 1 : 0);
+    
+    // Keep only last 20 readings
+    if (sensorHistory.timestamps.length > 20) {
+        sensorHistory.timestamps.shift();
+        sensorHistory.temperature.shift();
+        sensorHistory.humidity.shift();
+        sensorHistory.airQuality.shift();
+        sensorHistory.motion.shift();
+    }
+    
+    // Update chart
+    if (sensorChart) {
+        sensorChart.update();
+    }
+}
+
+// WebSocket connection for real-time updates
+let socket = null;
+
+function connectWebSocket() {
+    socket = new WebSocket(`ws://${window.location.host}/ws/sensor-data`);
+    
+    socket.onopen = function() {
+        console.log('WebSocket connection established');
+    };
+    
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        updateSensorValues(data);
+    };
+    
+    socket.onclose = function() {
+        console.log('WebSocket connection closed');
+        // Attempt to reconnect after 5 seconds
+        setTimeout(connectWebSocket, 5000);
+    };
+    
+    socket.onerror = function(error) {
+        console.error('WebSocket error:', error);
+    };
+}
+
+// Initialize when document is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    connectWebSocket();
+});
+</script>
+{% endblock %}

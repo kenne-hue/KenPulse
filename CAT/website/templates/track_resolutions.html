@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Track Resolutions - KenPulse{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">All Reports</h2>
+                <div class="flex space-x-4">
+                    <button onclick="filterReports('all')" class="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors">
+                        All
+                    </button>
+                    <button onclick="filterReports('pending')" class="px-4 py-2 rounded-lg bg-yellow-600 text-white hover:bg-yellow-700 transition-colors">
+                        Pending
+                    </button>
+                    <button onclick="filterReports('in-progress')" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                        In Progress
+                    </button>
+                    <button onclick="filterReports('resolved')" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors">
+                        Resolved
+                    </button>
+                </div>
+            </div>
+            
+            {% if reports %}
+            <div class="space-y-6">
+                <!-- Pending Reports -->
+                <div id="pending-reports" class="space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Pending Reports</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for report in reports if report.status == 'Pending' %}
+                        <div class="bg-white rounded-lg shadow-md p-6" data-report-id="{{ report.id }}">
+                            {% if report.image_url %}
+                            <img src="{{ report.image_url }}" alt="{{ report.title }}" class="w-full h-48 object-cover">
+                            {% else %}
+                            <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                                <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            {% endif %}
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        {{ report.status }}
+                                    </span>
+                                    <span class="text-sm text-gray-500">{{ report.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ report.title }}</h3>
+                                <p class="text-gray-600 mb-2">{{ report.description }}</p>
+                                <p class="text-sm text-gray-500 mb-2">
+                                    <svg class="inline-block h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    {{ report.location }}
+                                </p>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Reported by: {{ report.user.first_name }} {{ report.user.last_name }}
+                                </p>
+                                <div class="mt-4 flex justify-between items-center">
+                                    {% if report.user_id == current_user.id %}
+                                    <button onclick="deleteReport({{ report.id }})" class="text-red-600 hover:text-red-800 font-medium">
+                                        Delete Report
+                                    </button>
+                                    {% endif %}
+                                    <a href="{{ url_for('views.submit_proof') }}?report_id={{ report.id }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                        Submit Proof
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- In Progress Reports -->
+                <div id="in-progress-reports" class="space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800">In Progress Reports</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for report in reports if report.status == 'In Progress' %}
+                        <div class="bg-white rounded-lg shadow-md p-6" data-report-id="{{ report.id }}">
+                            {% if report.image_url %}
+                            <img src="{{ report.image_url }}" alt="{{ report.title }}" class="w-full h-48 object-cover">
+                            {% else %}
+                            <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                                <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            {% endif %}
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        {{ report.status }}
+                                    </span>
+                                    <span class="text-sm text-gray-500">{{ report.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ report.title }}</h3>
+                                <p class="text-gray-600 mb-2">{{ report.description }}</p>
+                                <p class="text-sm text-gray-500 mb-2">
+                                    <svg class="inline-block h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    {{ report.location }}
+                                </p>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Reported by: {{ report.user.first_name }} {{ report.user.last_name }}
+                                </p>
+                                <div class="mt-4 flex justify-between items-center">
+                                    {% if report.user_id == current_user.id %}
+                                    <button onclick="deleteReport({{ report.id }})" class="text-red-600 hover:text-red-800 font-medium">
+                                        Delete Report
+                                    </button>
+                                    {% endif %}
+                                    <a href="{{ url_for('views.submit_proof') }}?report_id={{ report.id }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                        Submit Proof
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Resolved Reports -->
+                <div id="resolved-reports" class="space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Resolved Reports</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for report in reports if report.status == 'Resolved' %}
+                        <div class="bg-white rounded-lg shadow-md p-6" data-report-id="{{ report.id }}">
+                            {% if report.image_url %}
+                            <img src="{{ report.image_url }}" alt="{{ report.title }}" class="w-full h-48 object-cover">
+                            {% else %}
+                            <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                                <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            {% endif %}
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                        {{ report.status }}
+                                    </span>
+                                    <span class="text-sm text-gray-500">{{ report.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ report.title }}</h3>
+                                <p class="text-gray-600 mb-2">{{ report.description }}</p>
+                                <p class="text-sm text-gray-500 mb-2">
+                                    <svg class="inline-block h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    {{ report.location }}
+                                </p>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Reported by: {{ report.user.first_name }} {{ report.user.last_name }}
+                                </p>
+                                {% if report.user_id == current_user.id %}
+                                <div class="mt-4">
+                                    <button onclick="deleteReport({{ report.id }})" class="text-red-600 hover:text-red-800 font-medium">
+                                        Delete Report
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No reports yet</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by submitting your first report.</p>
+                <div class="mt-6">
+                    <a href="{{ url_for('views.report') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        Submit Report
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+function deleteReport(reportId) {
+    if (!confirm('Are you sure you want to delete this report?')) {
+        return;
+    }
+
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    if (!token) {
+        console.error('CSRF token not found');
+        return;
+    }
+
+    fetch('/delete-report', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': token
+        },
+        body: JSON.stringify({ report_id: reportId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Find the report card in any section and remove it
+            const reportCard = document.querySelector(`[data-report-id="${reportId}"]`);
+            if (reportCard) {
+                const section = reportCard.closest('.space-y-4');
+                reportCard.remove();
+                
+                // Check if the section is now empty
+                const reportsInSection = section.querySelectorAll('[data-report-id]');
+                if (reportsInSection.length === 0) {
+                    const noReportsDiv = document.createElement('div');
+                    noReportsDiv.className = 'text-center py-8';
+                    noReportsDiv.innerHTML = `
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No reports yet</h3>
+                        <p class="mt-1 text-sm text-gray-500">Get started by submitting a new report.</p>
+                    `;
+                    section.appendChild(noReportsDiv);
+                }
+            }
+        } else {
+            alert('Failed to delete report: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the report. Please try again.');
+    });
+}
+
+function filterReports(status) {
+    // Hide all sections first
+    document.getElementById('pending-reports').classList.add('hidden');
+    document.getElementById('in-progress-reports').classList.add('hidden');
+    document.getElementById('resolved-reports').classList.add('hidden');
+
+    // Show selected section
+    if (status === 'all') {
+        document.getElementById('pending-reports').classList.remove('hidden');
+        document.getElementById('in-progress-reports').classList.remove('hidden');
+        document.getElementById('resolved-reports').classList.remove('hidden');
+    } else if (status === 'pending') {
+        document.getElementById('pending-reports').classList.remove('hidden');
+    } else if (status === 'in-progress') {
+        document.getElementById('in-progress-reports').classList.remove('hidden');
+    } else if (status === 'resolved') {
+        document.getElementById('resolved-reports').classList.remove('hidden');
+    }
+}
+</script>
+{% endblock %} 
